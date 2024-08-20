@@ -6,9 +6,14 @@ from .models import NaverNews
 from django.core.paginator import Paginator
 
 
+'''
+    select DISTINCT section from nNews;
+'''
 
 def news_search(request):
     naver_news = NaverNews.objects.all()
+
+
 
     mode = request.GET.get('mode')
     keyword = request.GET.get('keyword')
@@ -19,6 +24,18 @@ def news_search(request):
             naver_news = naver_news.filter(title__icontains=keyword)
         elif mode == 'section':
             naver_news = naver_news.filter(section__icontains=keyword)
+
+    section_data = (
+        NaverNews.objects
+        .values_list('section', flat=True).distinct()
+    )
+
+    selected_section = request.GET.get('sect', 'all')
+    print(selected_section)
+    if selected_section == 'all':
+        naver_news = NaverNews.objects.all()
+    else:
+        naver_news = NaverNews.objects.filter(section=selected_section)
 
     pageSize = 10
     paginator = Paginator(naver_news, pageSize)
@@ -70,7 +87,7 @@ def news_search(request):
 
     context = {'naver_newsList': naver_newsList, 'beginPage': beginPage, 'endPage': endPage, 'page_range': page_range,
                'has_previous': has_previous, 'has_next': has_next, 'query_params': query_params,
-               'pageNumber': pageNumber, 'totalPage': totalPage}
+               'pageNumber': pageNumber, 'totalPage': totalPage,'section_data':section_data, 'selected_section':selected_section}
 
     return render(request, 'nndb/news_search.html', context)
 # den def

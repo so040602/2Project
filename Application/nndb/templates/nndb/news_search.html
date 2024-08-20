@@ -14,6 +14,7 @@
             border-collapse: collapse;
             width: 100%;
     }
+
     #imageContainer {
         display: none;
         margin-top: 20px;
@@ -23,16 +24,20 @@
          max-width: 100%;
          height: auto;
     }
+    .search-line{
+        display: inline-block;
+        margin-right : 10px
+    }
+
 </style>
 <h1 class="text-center mb-4">2조 프로젝트</h1>
-    <form method="GET" action="news_search/" class="mb-4">
+    <form method="GET" action="" class="mb-4">
         <input type="hidden" name="page" value="{{ request.GET.page|default:1 }}">
         <div class="row justify-content-center">
             <div class="col-md-3">
                 <select class="form-select" name="mode">
                     <option value="">--- 검색 필드를 지정해 주세요.</option>
                     <option value="title" {% if request.GET.mode == 'title' %}selected{% endif %}>기사제목</option>
-                    <option value="section" {% if request.GET.mode == 'section' %}selected{% endif %}>섹션</option>
                 </select>
             </div>
             <div class="col-md-5">
@@ -43,8 +48,19 @@
             </div>
             </div>
     </form>
-<div class="pageNum"><p>{{pageNumber}}/{{totalPage}}</p></div>
+
 <div class="table-container">
+    <form method="get" action="." class="search-line">
+        <span><select name="sect" onchange="this.form.submit()">
+            <option value="all" {% if selected_section == 'all' %}selected{% endif %}>전체보기</option>
+            {% for section in section_data %}
+                <option value="{{section}}" {% if section == selected_section %}selected{% endif %}>{{section}}</option>
+            {% endfor %}
+            </select>
+        </span>
+    </form>
+
+    <span class="search-line"><p>{{pageNumber}}/{{totalPage}}</p></span>
     <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover">
             <thead class="table-dark">
@@ -58,12 +74,15 @@
                 {% for naver_news in naver_newsList %}
                 <tr>
                     <td data-image="{{naver_news.img_link}}">{{ naver_news.count }}</td>
-                    <td><a href="{{naver_news.link}}" target="_blank">{{ naver_news.title }}</a></td>
+                    <td data-image="{{naver_news.img_link}}"><a href="{{naver_news.link}}" target="_blank">{{ naver_news.title }}</a></td>
                     <td data-image="{{naver_news.img_link}}">{{ naver_news.pDate }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <div id="imageContainer">
+            <img id="displayImage" src="" alt="Selected Image">
+        </div>
         <nav id="page_nav2" aria-label="Page navigation" class="my-4">
             <ul class="pagination justify-content-center">
                 {% if has_previous %}
@@ -99,9 +118,6 @@
                 {% endif %}
             </ul>
         </nav>
-    </div>
-    <div id="imageContainer">
-        <img id="displayImage" src="" alt="Selected Image">
     </div>
 </div>
 <div class="table-container">
